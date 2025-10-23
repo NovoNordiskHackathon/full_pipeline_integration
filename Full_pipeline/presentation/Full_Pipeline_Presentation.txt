@@ -1,0 +1,320 @@
+# PTD Generator - Presentation Slides
+
+## Slide 1: Title Slide
+**Title**: PTD Generator
+**Subtitle**: Automated Protocol Translation Document Generation
+**Tagline**: Transform Protocol and CRF documents into structured PTD files using AI-powered processing
+
+**Speaker Notes**: 
+Welcome to the PTD Generator presentation. This system automates the creation of Protocol Translation Documents from clinical trial documents. It combines AI-powered text extraction with structured data processing to streamline the clinical research workflow.
+
+---
+
+## Slide 2: Project Overview
+**Title**: What is PTD Generator?
+
+**Content**:
+• **Purpose**: Transform Protocol PDFs and eCRF documents into structured PTD files
+• **Technology**: AI-powered text extraction + hierarchical document structuring  
+• **Output**: Standardized Excel files with Schedule Grid and Study Specific Forms
+• **Target Users**: Clinical research teams, data managers, protocol developers
+
+**Speaker Notes**:
+PTD Generator solves the manual, time-consuming process of creating Protocol Translation Documents. It uses advanced AI to extract and structure data from complex clinical documents, producing standardized outputs that integrate with existing clinical data management systems. This significantly reduces manual effort and improves consistency across clinical trials.
+
+---
+
+## Slide 3: High-Level Architecture
+**Title**: System Architecture
+
+**Content**:
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Flask API     │    │   PTD Pipeline  │
+│   (HTML/JS)     │◄──►│   (app.py)      │◄──►│   (PTD_Gen/)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       ▼
+         │                       │              ┌─────────────────┐
+         │                       │              │   Modules       │
+         │                       │              │   - form_extractor
+         │                       │              │   - soa_parser
+         │                       │              │   - common_matrix
+         │                       │              │   - event_grouping
+         │                       │              │   - schedule_layout
+         │                       │              └─────────────────┘
+```
+
+**Speaker Notes**:
+The system uses a three-layer architecture: Frontend, API, and Processing Pipeline. The Flask API serves as the communication layer between the web interface and processing modules. This modular design allows for easy maintenance and feature additions, while keeping the system scalable and maintainable.
+
+---
+
+## Slide 4: Repository Layout
+**Title**: Project Structure
+
+**Content**:
+```
+Full_pipeline/
+├── app.py                          # Main Flask application
+├── frontend/                       # Web interface
+│   ├── index.html                  # Main HTML page
+│   ├── script.js                   # Frontend JavaScript
+│   └── styles.css                  # CSS styling
+├── PTD_Gen/                        # Core PTD generation
+│   ├── generate_ptd.py             # Main orchestrator
+│   ├── modules/                    # Processing modules
+│   └── config/                     # Configuration files
+└── docs/                           # Documentation
+```
+
+**Speaker Notes**:
+The project has a clean, organized structure with clear separation of concerns. The frontend handles user interaction, PTD_Gen contains core processing logic, and comprehensive documentation ensures maintainability. This structure makes it easy for new developers to understand and contribute to the project.
+
+---
+
+## Slide 5: Key Modules - Form Extraction
+**Title**: Form Extraction Module
+
+**Content**:
+• **Responsibilities**:
+  - Extract form information from eCRF JSON files
+  - Classify form sources (Library, New, Reference Study)
+  - Identify dynamic triggers and required status
+  - Generate structured CSV output
+
+• **Configuration**: `config_form_extractor.json`
+• **Input**: eCRF JSON file
+• **Output**: Forms CSV with metadata
+
+**Speaker Notes**:
+The form extraction module uses pattern matching and AI to intelligently extract form information from complex eCRF documents. It automatically classifies forms based on naming conventions and context, handling complex eCRF structures with nested hierarchies. This ensures accurate and consistent form identification across different document formats.
+
+---
+
+## Slide 6: Key Modules - Schedule Parsing
+**Title**: Schedule of Activities Parser
+
+**Content**:
+• **Responsibilities**:
+  - Parse schedule tables from protocol documents
+  - Extract visit patterns and procedures
+  - Create visit-procedure mapping matrix
+  - Handle complex table structures
+
+• **Configuration**: `config_soa_parser.json`
+• **Input**: Protocol JSON file
+• **Output**: Schedule CSV matrix
+
+**Speaker Notes**:
+The schedule parser intelligently identifies schedule tables in protocol documents and handles various visit naming conventions like V1, P1, S1D1, etc. It provides robust parsing that works with different document formats, ensuring accurate extraction of visit-procedure relationships from complex protocol documents.
+
+---
+
+## Slide 7: Key Modules - PTD Generation
+**Title**: PTD Generation Orchestrator
+
+**Content**:
+• **Responsibilities**:
+  - Coordinate 5-stage processing pipeline
+  - Merge data from multiple sources
+  - Generate Excel output with two sheets
+  - Support multiple output modes (stream, surgery, fast)
+
+• **Features**:
+  - Template-based generation
+  - Memory-efficient processing
+  - Multiple output formats
+
+**Speaker Notes**:
+The PTD generation orchestrator is the central component that coordinates all processing modules. It supports different processing modes for various use cases and generates professional Excel outputs with proper formatting. The template-based approach ensures consistency while allowing for customization.
+
+---
+
+## Slide 8: API Endpoints
+**Title**: RESTful API Interface
+
+**Content**:
+• **Key Endpoints**:
+  - `GET /status` - System status and health
+  - `POST /run_pipeline` - Main processing endpoint
+  - `POST /run_ptd_generation` - Full PTD generation
+  - `GET /download/<filename>` - File download
+
+• **Example cURL**:
+```bash
+curl -X POST http://localhost:5000/run_pipeline \
+  -F "protocol_file=@protocol.pdf" \
+  -F "crf_file=@crf.pdf"
+```
+
+**Speaker Notes**:
+The system provides a RESTful API design for easy integration with existing systems. It supports both file upload and JSON data input, with comprehensive error handling and status reporting. This makes it easy to integrate with other clinical research tools and workflows.
+
+---
+
+## Slide 9: Setup & Run
+**Title**: Quick Setup and Running
+
+**Content**:
+• **Setup Commands**:
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run application
+python app.py
+```
+
+• **Access Points**:
+  - Frontend: http://localhost:5000
+  - API: http://localhost:5000/status
+
+**Speaker Notes**:
+The setup process is simple with minimal dependencies. The application runs on standard port 5000 and is easy to deploy and maintain. This makes it accessible to both technical and non-technical users in clinical research teams.
+
+---
+
+## Slide 10: Troubleshooting
+**Title**: Common Issues and Solutions
+
+**Content**:
+• **Top 5 Fixes**:
+  1. **ModuleNotFoundError**: Add current directory to PYTHONPATH
+  2. **Port Already in Use**: Kill existing process or use different port
+  3. **Missing Dependencies**: Reinstall requirements.txt
+  4. **File Not Found**: Check file paths and permissions
+  5. **JSON Decode Error**: Validate input JSON files
+
+• **Debug Commands**:
+```bash
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+lsof -i :5000
+python -m json.tool input.json
+```
+
+**Speaker Notes**:
+Common issues are well-documented with specific solutions. Debug commands help identify and resolve problems quickly, and comprehensive logging provides detailed information for troubleshooting. This ensures users can resolve issues independently and maintain system uptime.
+
+---
+
+## Slide 11: Demo Flow
+**Title**: Live Demo - PTD Generation
+
+**Content**:
+• **Demo Steps**:
+  1. **Start Application**: `python app.py`
+  2. **Access Frontend**: Open http://localhost:5000
+  3. **Upload Files**: Drag and drop Protocol and CRF documents
+  4. **Process Documents**: Click "Generate PTD" button
+  5. **Monitor Progress**: Watch processing steps
+  6. **Download Result**: Get generated PTD Excel file
+
+• **Expected Output**:
+  - Schedule Grid sheet with visit-procedure matrix
+  - Study Specific Forms sheet with form details
+  - Professional formatting and styling
+
+**Speaker Notes**:
+This live demonstration shows the complete workflow from document upload to PTD generation. The user-friendly interface and processing capabilities are demonstrated, along with real-world usage scenarios. The expected output shows the professional quality of generated documents.
+
+---
+
+## Slide 12: Next Steps
+**Title**: Future Enhancements
+
+**Content**:
+• **Immediate Improvements**:
+  - Complete integration testing
+  - Enhanced error handling
+  - Input validation
+
+• **Short-term Goals**:
+  - Docker containerization
+  - CI/CD pipeline
+  - API documentation with Swagger
+
+• **Long-term Vision**:
+  - Microservices architecture
+  - Cloud deployment
+  - Machine learning enhancements
+
+**Speaker Notes**:
+The roadmap includes clear priorities for future development, focusing on scalability and maintainability. The community-driven development approach ensures continuous improvement and adaptation to user needs. This provides a clear vision for the project's evolution.
+
+---
+
+## Slide 13: References and Resources
+**Title**: Documentation and Support
+
+**Content**:
+• **Documentation**:
+  - `docs/README_FULL.md` - Comprehensive documentation
+  - `docs/ARCHITECTURE.md` - System architecture
+  - `docs/API_REFERENCE.md` - API documentation
+  - `docs/QUICK_START.md` - Quick start guide
+
+• **Support**:
+  - GitHub repository with issue tracking
+  - Comprehensive troubleshooting guide
+  - Example configurations and templates
+
+**Speaker Notes**:
+Extensive documentation is available for both users and developers, with multiple support channels for assistance. Regular updates and community contributions ensure the project remains current and responsive to user needs. This comprehensive support system enables successful adoption and maintenance.
+
+---
+
+## Slide 14: Questions & Discussion
+**Title**: Questions and Discussion
+
+**Content**:
+• **Contact Information**:
+  - Repository: [GitHub Link]
+  - Documentation: `docs/` directory
+  - Issues: GitHub Issues tracker
+
+• **Discussion Topics**:
+  - Integration requirements
+  - Customization needs
+  - Performance considerations
+  - Deployment strategies
+
+**Speaker Notes**:
+This is an open floor for questions and discussion. We can address specific use cases and requirements, gather feedback for future improvements, and discuss integration strategies. The goal is to ensure the system meets the needs of clinical research teams and can be successfully deployed in various environments.
+
+---
+
+## Presentation Assets
+
+### Screenshots to Include:
+1. **Project Structure**: `tree` command output showing directory structure
+2. **API Status**: Browser showing http://localhost:5000/status response
+3. **Frontend Interface**: Screenshot of the web interface
+4. **Generated PTD**: Sample Excel file showing Schedule Grid and Study Specific Forms sheets
+5. **Terminal Output**: Sample command execution showing successful processing
+
+### Sample Commands for Screenshots:
+```bash
+# Project structure
+tree Full_pipeline -I '__pycache__|*.pyc' -L 3
+
+# API status
+curl -X GET http://localhost:5000/status
+
+# Running application
+python app.py
+
+# PTD generation
+python PTD_Gen/generate_ptd.py --ecrf ecrf.json --protocol protocol.json --out demo_output.xlsx
+```
+
+---
+
+**Presentation Created**: 2025-01-27  
+**Total Slides**: 14  
+**Estimated Duration**: 10-15 minutes  
+**Target Audience**: Clinical research teams, developers, stakeholders
