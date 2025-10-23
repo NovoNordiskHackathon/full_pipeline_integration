@@ -31,13 +31,16 @@ from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
 
 # Reuse existing modules for schedule grid pipeline
-from modules.form_extractor import extract_forms
-from modules.soa_parser import parse_soa
-from modules.common_matrix import merge_common_matrix
-from modules.event_grouping import group_events
-from modules.schedule_layout import generate_schedule_grid as build_schedule_grid_file
-from modules.schedule_layout import generate_schedule_grid_stream
-from Final_study_specific_form import prepare_study_specific_forms_rows, write_study_specific_forms_stream
+from .modules.form_extractor import extract_forms
+from .modules.soa_parser import parse_soa
+from .modules.common_matrix import merge_common_matrix
+from .modules.event_grouping import group_events
+from .modules.schedule_layout import generate_schedule_grid as build_schedule_grid_file
+from .modules.schedule_layout import generate_schedule_grid_stream
+from .Final_study_specific_form import (
+    prepare_study_specific_forms_rows,
+    write_study_specific_forms_stream,
+)
 
 
 def load_json(file_path: str) -> Dict[str, Any]:
