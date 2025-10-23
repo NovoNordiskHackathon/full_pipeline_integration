@@ -47,7 +47,7 @@ fi
 
 # -------- RUN THE PYTHON SCRIPT --------
 echo "Running PDF extraction..."
-"$PY" "$SCRIPT_DIR/simpletext_extract.py" "$INPUT_PDF" -o "$OUTPUT_ZIP"
+"$PY" "$SCRIPT_DIR/backend/simpletext_extract.py" "$INPUT_PDF" -o "$OUTPUT_ZIP"
 
 # -------- UNZIP THE RESULT --------
 echo "Unzipping the result..."

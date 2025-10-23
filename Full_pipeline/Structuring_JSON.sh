@@ -20,8 +20,9 @@ ECRF_JSON_NAME="${4:-structuredData.json}"
 
 # Resolve script directory (expects the two Python files here)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROTO_SCRIPT="$SCRIPT_DIR/json_struct_protocol.py"
-ECRF_SCRIPT="$SCRIPT_DIR/json_struct_ecrf.py"
+# Python scripts moved under backend/
+PROTO_SCRIPT="$SCRIPT_DIR/backend/json_struct_protocol.py"
+ECRF_SCRIPT="$SCRIPT_DIR/backend/json_struct_ecrf.py"
 
 # Pick python
 if command -v python3 >/dev/null 2>&1; then

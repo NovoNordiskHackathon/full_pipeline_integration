@@ -68,10 +68,10 @@ fi
 # Step 4: Generate PTD
 echo "=== Generating PTD ==="
 
-# Resolve paths
+# Resolve paths (generator moved under backend/PTD_Gen)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GEN_PTD="$SCRIPT_DIR/PTD_Gen/generate_ptd.py"
-TEMPLATE_PATH="$SCRIPT_DIR/PTD_Gen/PTD Template v.2_Draft (1).xlsx"
+GEN_PTD="$SCRIPT_DIR/backend/PTD_Gen/generate_ptd.py"
+TEMPLATE_PATH="$SCRIPT_DIR/backend/PTD_Gen/PTD Template v.2_Draft (1).xlsx"
 
 if [ ! -f "$GEN_PTD" ]; then
   echo "PTD generator not found at: $GEN_PTD"
@@ -98,7 +98,7 @@ if [ -f "$TEMPLATE_PATH" ]; then
   echo "PTD output written inside PTD_Gen (in-place on template)."
 else
   echo "Template not found at $TEMPLATE_PATH; using streaming mode to create a new workbook."
-  OUT_XLSX="$SCRIPT_DIR/PTD_Gen/PTD_Output.xlsx"
+  OUT_XLSX="$SCRIPT_DIR/backend/PTD_Gen/PTD_Output.xlsx"
   "$PY" "$GEN_PTD" \
     --ecrf "$STRUCTURED_ECRF_JSON" \
     --protocol "$STRUCTURED_PROTOCOL_JSON" \
