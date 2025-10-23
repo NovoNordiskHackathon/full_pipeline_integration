@@ -29,7 +29,7 @@ from simpletext_extract import extract_text_and_tables_from_pdf as extract_text_
 # Import existing pipeline modules
 from backend.json_struct_protocol import run_hierarchy as process_protocol
 from backend.json_struct_ecrf import run_hierarchy as process_ecrf
-from backend.generate_ptd import main as generate_ptd_main
+# PTD generation will be called via subprocess
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -547,9 +547,15 @@ def run_ptd_generation():
             with open(ecrf_file, 'w', encoding='utf-8') as f:
                 json.dump(data['ecrf_json'], f, indent=2)
 
-            # Run PTD generation
+            # Run PTD generation via subprocess
             logger.info("Running PTD generation...")
-            result = generate_ptd_main(protocol_file, ecrf_file, output_file)
+            result = subprocess.run([
+                sys.executable,
+                'backend/PTD_Gen/generate_ptd.py',
+                '--protocol', protocol_file,
+                '--ecrf', ecrf_file,
+                '--out', output_file
+            ], capture_output=True, text=True, check=True, cwd=os.path.dirname(os.path.abspath(__file__)))
 
             return jsonify({
                 'success': True,
