@@ -1,0 +1,16 @@
+Created files under Full_pipeline/ (no code edits to existing backend/frontend):
+
+- docs/README_FULL.md
+- docs/ARCHITECTURE.md
+- docs/API_REFERENCE.md
+- docs/QUICK_START.md
+- docs/FILES_CHANGED.txt
+- docs/requirements_list.txt
+- presentation/Full_Pipeline_Presentation.pptx
+- presentation/assets/repo_tree.png
+- presentation/assets/architecture.png
+- presentation/assets/sample_run.png
+
+Notes:
+- No modifications or deletions were made to existing Python or frontend code files in Full_pipeline/.
+- The presentation is editable (real text, with speaker notes).

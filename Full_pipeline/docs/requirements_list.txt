@@ -1,0 +1,29 @@
+# Consolidated requirements from requirements.txt files
+
+[Full_pipeline/requirements.txt]
+- pandas>=2.0.0
+- openpyxl>=3.1.2
+- xlsxwriter>=3.2.0
+- pdfservices-sdk
+- flask>=2.3.0
+- flask-cors>=4.0.0
+- werkzeug>=2.3.0
+
+[Full_pipeline/PTD_Gen/requirements.txt]
+- openpyxl>=3.1.2
+- xlsxwriter>=3.2.0
+- pandas>=2.0.0
+
+[Full_pipeline (Copy)/requirements.txt] (reference)
+- pandas>=2.0.0
+- openpyxl>=3.1.2
+- xlsxwriter>=3.2.0
+- pdfservices-sdk
+- flask>=2.3.0
+- flask-cors>=4.0.0
+- werkzeug>=2.3.0
+
+[Full_pipeline (Copy)/backend/requirements.txt] (reference)
+- openpyxl>=3.1.2
+- xlsxwriter>=3.2.0
+- pandas>=2.0.0
