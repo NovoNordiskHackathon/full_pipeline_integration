@@ -190,7 +190,7 @@ class PTDGenerator {
 
   async generatePTD() {
     if (!this.protocolFile || !this.crfFile) {
-      this.showToast('Please upload both Protocol and CRF documents.', 'error');
+      this.showToast('Please upload both Protocol and CRF JSON files.', 'error');
       return;
     }
 
@@ -202,13 +202,47 @@ class PTDGenerator {
     this.startProgressAnimation();
 
     try {
-      // Simulate processing with realistic steps
-      await this.simulateProcessing();
-     
-      // Show success
-      this.showOutputSection();
-      this.showToast('PTD generated successfully!', 'success');
-     
+      const formData = new FormData();
+      formData.append('protocol_json', this.protocolFile);
+      formData.append('ecrf_json', this.crfFile);
+      // Optional: template upload field can be added to UI and appended here
+      // formData.append('template_xlsx', templateFile);
+      formData.append('mode', 'default');
+      formData.append('fast', 'true');
+
+      const res = await fetch('http://localhost:5000/run_pipeline', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || 'Backend error');
+      }
+
+      const data = await res.json();
+      if (data.download_url) {
+        this.showOutputSection();
+        const downloadLink = document.getElementById('downloadLink');
+        // Use absolute URL to backend
+        const url = new URL(data.download_url, 'http://localhost:5000');
+        downloadLink.href = url.toString();
+        // Update file name if present
+        const fileName = (data.output || '').split('/').pop() || 'PTD_Template.xlsx';
+        downloadLink.setAttribute('download', fileName);
+        this.showToast('PTD generated successfully!', 'success');
+      } else if (data.note) {
+        // If only schedule grid is returned
+        this.showOutputSection();
+        const downloadLink = document.getElementById('downloadLink');
+        const url = new URL(data.download_url, 'http://localhost:5000');
+        downloadLink.href = url.toString();
+        const fileName = (data.output || '').split('/').pop() || 'schedule_grid.xlsx';
+        downloadLink.setAttribute('download', fileName);
+        this.showToast(data.note, 'success');
+      } else {
+        throw new Error('Unexpected response from backend');
+      }
     } catch (error) {
       this.showToast('Error generating PTD. Please try again.', 'error');
       console.error('Error:', error);

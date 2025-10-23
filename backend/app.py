@@ -18,9 +18,18 @@ OUTPUT_BASE.mkdir(parents=True, exist_ok=True)
 
 # Import pipeline modules without modifying their logic
 import sys
+# Ensure both PTD_Gen and the pipeline root are importable
 sys.path.insert(0, str(PTD_GEN_DIR))
+sys.path.insert(0, str(PIPELINE_DIR))
 
-from generate_ptd import run_schedule_grid_pipeline, generate_study_specific_forms_xlsx, replace_sheets_in_template, finalize_formatting  # type: ignore
+from generate_ptd import (
+    run_schedule_grid_pipeline,
+    generate_study_specific_forms_xlsx,
+    replace_sheets_in_template,
+    finalize_formatting,
+)  # type: ignore
+from json_struct_protocol import run_hierarchy as proto_run_hierarchy  # type: ignore
+from json_struct_ecrf import run_hierarchy as ecrf_run_hierarchy  # type: ignore
 
 app = Flask(__name__)
 CORS(app)
@@ -36,6 +45,29 @@ def _save_uploaded(file_storage, dest_folder: Path, filename: Optional[str] = No
     dest_path = dest_folder / safe_name
     file_storage.save(dest_path)
     return dest_path
+
+
+def _ensure_structured_json(raw_json_path: Path, structured_out_path: Path) -> Path:
+    """If the JSON has an 'elements' array, structure it using the hierarchy scripts.
+    Otherwise assume it's already structured and return the original path.
+    """
+    try:
+        with open(raw_json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        has_elements = isinstance(data, dict) and "elements" in data
+    except Exception:
+        # If unreadable, just pass through
+        has_elements = False
+
+    if has_elements:
+        # Decide which structurer to use based on filename hint
+        if "protocol" in raw_json_path.name.lower():
+            proto_run_hierarchy(str(raw_json_path), str(structured_out_path))
+        else:
+            ecrf_run_hierarchy(str(raw_json_path), str(structured_out_path))
+        return structured_out_path
+    else:
+        return raw_json_path
 
 
 @app.route("/status", methods=["GET"])
@@ -83,6 +115,10 @@ def run_pipeline():
         protocol_path = _save_uploaded(request.files["protocol_json"], job_dir, "protocol.json")
         ecrf_path = _save_uploaded(request.files["ecrf_json"], job_dir, "ecrf.json")
 
+        # Ensure inputs are in the hierarchical structure expected by PTD_Gen
+        protocol_structured = _ensure_structured_json(protocol_path, job_dir / "protocol_structured.json")
+        ecrf_structured = _ensure_structured_json(ecrf_path, job_dir / "ecrf_structured.json")
+
         template_file = request.files.get("template_xlsx")
         template_path: Optional[Path] = None
         if template_file:
@@ -97,16 +133,27 @@ def run_pipeline():
         # Run existing pipeline without changing its internal logic
         # 1) Produce schedule grid intermediates or file
         schedule_inputs = run_schedule_grid_pipeline(
-            protocol_json=str(protocol_path),
-            ecrf_json=str(ecrf_path),
+            protocol_json=str(protocol_structured),
+            ecrf_json=str(ecrf_structured),
             final_output_xlsx=str(job_dir / "schedule_grid.xlsx"),
             config_dir=str(CONFIG_DIR),
             for_stream=(mode in ("stream", "surgery")),
         )
 
+        # If no template is provided, return the schedule grid as the output immediately
+        if not template_path:
+            grid_path = schedule_inputs if isinstance(schedule_inputs, str) else str(job_dir / "schedule_grid.xlsx")
+            JOBS[job_id].update({
+                "state": "completed",
+                "output": str(Path(grid_path).relative_to(ROOT_DIR)),
+                "download_url": f"/download?job_id={job_id}",
+                "note": "No template provided; returning Schedule Grid workbook only.",
+            })
+            return jsonify(JOBS[job_id])
+
         # 2) Generate study specific forms (skip only for stream mode)
         if mode != "stream":
-            forms_xlsx = generate_study_specific_forms_xlsx(str(ecrf_path))
+            forms_xlsx = generate_study_specific_forms_xlsx(str(ecrf_structured))
 
         # 3) Combine into template according to chosen mode
         if mode == "stream":
@@ -132,7 +179,7 @@ def run_pipeline():
             if not isinstance(schedule_inputs, dict):
                 return jsonify({"error": "internal error: expected streaming schedule inputs"}), 500
             rows = prepare_study_specific_forms_rows(
-                json_file_path=str(ecrf_path),
+                json_file_path=str(ecrf_structured),
                 config_path=str(CONFIG_DIR / "config_study_specific_forms.json"),
             )
             final_path = surgery_replace_sheets_inplace(
