@@ -4,6 +4,11 @@ Flask backend for PTD Generator
 Integrates with existing Python pipeline scripts
 """
 
+import zipfile
+from doc_to_pdf import convert_doc_to_pdf
+from simpletext_extract import extract_text_from_pdf
+
+
 import os
 import sys
 import json
@@ -15,6 +20,12 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import traceback
+
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "backend"))
+
 
 # Add current directory to Python path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +50,20 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+@app.route('/')
+def home():
+    """Home page"""
+    return jsonify({
+        'message': 'PTD Generator API is running',
+        'available_endpoints': [
+            '/status',
+            '/health', 
+            '/run_pipeline',
+            '/run_ptd_generation'
+        ]
+    })
 
 def allowed_file(filename):
     """Check if file extension is allowed"""

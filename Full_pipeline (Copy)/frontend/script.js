@@ -226,7 +226,8 @@ class PTDGenerator {
 
     try {
       // First, try to upload files
-      const uploadResponse = await fetch('http://localhost:5000/run_pipeline', {
+//      const uploadResponse = await fetch('http://localhost:5000/run_pipeline', {
+        const uploadResponse = await fetch('http://127.0.0.1:5000//run_pipeline', {
         method: 'POST',
         body: formData
       });
