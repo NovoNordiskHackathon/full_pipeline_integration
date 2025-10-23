@@ -1,0 +1,76 @@
+2025-10-23 22:00:59,456 - INFO - Extracting forms from ../output2/ecrf_extract/structuredData_output.json
+2025-10-23 22:00:59,496 - INFO - Extracted 13 forms to /tmp/ptd_intermediate_3r3220g5/extracted_forms.csv
+2025-10-23 22:00:59,496 - INFO - Parsing SoA from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:00:59,522 - INFO - Found visit header row
+2025-10-23 22:00:59,523 - INFO - Detected 22 unique visits: ['V1', 'V2', 'P3', 'V4', 'V5', 'V6', 'V7', 'V8', 'P9', 'V10', 'P11', 'V12', 'P13', 'V14', 'P15', 'V16', 'P17', 'V18', 'V19', 'V19A', 'P20', 'V21']
+2025-10-23 22:00:59,524 - INFO - Found 57 total rows with visit markers
+2025-10-23 22:00:59,524 - INFO - Found section break at row 148: 'Objectives' (55 procedures)
+2025-10-23 22:00:59,524 - INFO - Processing rows 71 to 148
+2025-10-23 22:00:59,535 - INFO - Schedule saved to '/tmp/ptd_intermediate_3r3220g5/schedule.csv'
+2025-10-23 22:00:59,535 - INFO - Total procedures: 55
+2025-10-23 22:00:59,535 - INFO - Total visits: 22
+2025-10-23 22:00:59,535 - INFO - Merging common matrix from /tmp/ptd_intermediate_3r3220g5/extracted_forms.csv and /tmp/ptd_intermediate_3r3220g5/schedule.csv
+2025-10-23 22:00:59,535 - INFO - Generating ordered SoA matrix from /tmp/ptd_intermediate_3r3220g5/extracted_forms.csv and /tmp/ptd_intermediate_3r3220g5/schedule.csv
+2025-10-23 22:00:59,549 - INFO - Unmapped forms: ['V1, V4, V5, V6, V7, V10, V12, V14, V16, V18, V19A, V21', 'V2, V8, V19', 'V2, V5, V8, V16, V19', 'V2, V4, V5, V6, V7, V8, V10, V12, V14, V16, V18, V19, V19A, V20', 'MRI Scan Consent (MRI Consent)', 'V1, V6, V8, V12, V16, V19, V19A', 'Unplanned Procedures']
+2025-10-23 22:00:59,562 - INFO - SoA matrix saved to /tmp/ptd_intermediate_3r3220g5/soa_matrix.csv
+2025-10-23 22:00:59,562 - INFO - Grouping events from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:00:59,562 - INFO - Generating visits with groups from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:00:59,569 - WARNING - Could not determine extension start week from JSON. Check 'Study rationale' section.
+2025-10-23 22:00:59,595 - INFO - Visits with groups saved to /tmp/ptd_intermediate_3r3220g5/visits_with_groups.xlsx
+2025-10-23 22:01:58,548 - INFO - Extracting forms from ../output2/ecrf_extract/structuredData_output.json
+2025-10-23 22:01:58,592 - INFO - Extracted 13 forms to /tmp/ptd_intermediate_iumkim5w/extracted_forms.csv
+2025-10-23 22:01:58,592 - INFO - Parsing SoA from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:01:58,619 - INFO - Found visit header row
+2025-10-23 22:01:58,619 - INFO - Detected 22 unique visits: ['V1', 'V2', 'P3', 'V4', 'V5', 'V6', 'V7', 'V8', 'P9', 'V10', 'P11', 'V12', 'P13', 'V14', 'P15', 'V16', 'P17', 'V18', 'V19', 'V19A', 'P20', 'V21']
+2025-10-23 22:01:58,620 - INFO - Found 57 total rows with visit markers
+2025-10-23 22:01:58,621 - INFO - Found section break at row 148: 'Objectives' (55 procedures)
+2025-10-23 22:01:58,621 - INFO - Processing rows 71 to 148
+2025-10-23 22:01:58,631 - INFO - Schedule saved to '/tmp/ptd_intermediate_iumkim5w/schedule.csv'
+2025-10-23 22:01:58,632 - INFO - Total procedures: 55
+2025-10-23 22:01:58,632 - INFO - Total visits: 22
+2025-10-23 22:01:58,632 - INFO - Merging common matrix from /tmp/ptd_intermediate_iumkim5w/extracted_forms.csv and /tmp/ptd_intermediate_iumkim5w/schedule.csv
+2025-10-23 22:01:58,632 - INFO - Generating ordered SoA matrix from /tmp/ptd_intermediate_iumkim5w/extracted_forms.csv and /tmp/ptd_intermediate_iumkim5w/schedule.csv
+2025-10-23 22:01:58,646 - INFO - Unmapped forms: ['V1, V4, V5, V6, V7, V10, V12, V14, V16, V18, V19A, V21', 'V2, V8, V19', 'V2, V5, V8, V16, V19', 'V2, V4, V5, V6, V7, V8, V10, V12, V14, V16, V18, V19, V19A, V20', 'MRI Scan Consent (MRI Consent)', 'V1, V6, V8, V12, V16, V19, V19A', 'Unplanned Procedures']
+2025-10-23 22:01:58,659 - INFO - SoA matrix saved to /tmp/ptd_intermediate_iumkim5w/soa_matrix.csv
+2025-10-23 22:01:58,659 - INFO - Grouping events from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:01:58,659 - INFO - Generating visits with groups from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:01:58,667 - WARNING - Could not determine extension start week from JSON. Check 'Study rationale' section.
+2025-10-23 22:01:58,692 - INFO - Visits with groups saved to /tmp/ptd_intermediate_iumkim5w/visits_with_groups.xlsx
+2025-10-23 22:02:23,730 - INFO - Extracting forms from ../output2/ecrf_extract/structuredData_output.json
+2025-10-23 22:02:23,769 - INFO - Extracted 13 forms to /tmp/ptd_intermediate_x2pysh_4/extracted_forms.csv
+2025-10-23 22:02:23,769 - INFO - Parsing SoA from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:02:23,796 - INFO - Found visit header row
+2025-10-23 22:02:23,796 - INFO - Detected 22 unique visits: ['V1', 'V2', 'P3', 'V4', 'V5', 'V6', 'V7', 'V8', 'P9', 'V10', 'P11', 'V12', 'P13', 'V14', 'P15', 'V16', 'P17', 'V18', 'V19', 'V19A', 'P20', 'V21']
+2025-10-23 22:02:23,797 - INFO - Found 57 total rows with visit markers
+2025-10-23 22:02:23,798 - INFO - Found section break at row 148: 'Objectives' (55 procedures)
+2025-10-23 22:02:23,798 - INFO - Processing rows 71 to 148
+2025-10-23 22:02:23,808 - INFO - Schedule saved to '/tmp/ptd_intermediate_x2pysh_4/schedule.csv'
+2025-10-23 22:02:23,808 - INFO - Total procedures: 55
+2025-10-23 22:02:23,808 - INFO - Total visits: 22
+2025-10-23 22:02:23,809 - INFO - Merging common matrix from /tmp/ptd_intermediate_x2pysh_4/extracted_forms.csv and /tmp/ptd_intermediate_x2pysh_4/schedule.csv
+2025-10-23 22:02:23,809 - INFO - Generating ordered SoA matrix from /tmp/ptd_intermediate_x2pysh_4/extracted_forms.csv and /tmp/ptd_intermediate_x2pysh_4/schedule.csv
+2025-10-23 22:02:23,823 - INFO - Unmapped forms: ['V1, V4, V5, V6, V7, V10, V12, V14, V16, V18, V19A, V21', 'V2, V8, V19', 'V2, V5, V8, V16, V19', 'V2, V4, V5, V6, V7, V8, V10, V12, V14, V16, V18, V19, V19A, V20', 'MRI Scan Consent (MRI Consent)', 'V1, V6, V8, V12, V16, V19, V19A', 'Unplanned Procedures']
+2025-10-23 22:02:23,836 - INFO - SoA matrix saved to /tmp/ptd_intermediate_x2pysh_4/soa_matrix.csv
+2025-10-23 22:02:23,836 - INFO - Grouping events from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:02:23,836 - INFO - Generating visits with groups from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:02:23,843 - WARNING - Could not determine extension start week from JSON. Check 'Study rationale' section.
+2025-10-23 22:02:23,869 - INFO - Visits with groups saved to /tmp/ptd_intermediate_x2pysh_4/visits_with_groups.xlsx
+2025-10-23 22:05:39,806 - INFO - Extracting forms from ../output2/ecrf_extract/structuredData_output.json
+2025-10-23 22:05:39,846 - INFO - Extracted 13 forms to /tmp/ptd_intermediate_e78nu6h3/extracted_forms.csv
+2025-10-23 22:05:39,846 - INFO - Parsing SoA from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:05:39,873 - INFO - Found visit header row
+2025-10-23 22:05:39,873 - INFO - Detected 22 unique visits: ['V1', 'V2', 'P3', 'V4', 'V5', 'V6', 'V7', 'V8', 'P9', 'V10', 'P11', 'V12', 'P13', 'V14', 'P15', 'V16', 'P17', 'V18', 'V19', 'V19A', 'P20', 'V21']
+2025-10-23 22:05:39,874 - INFO - Found 57 total rows with visit markers
+2025-10-23 22:05:39,874 - INFO - Found section break at row 148: 'Objectives' (55 procedures)
+2025-10-23 22:05:39,874 - INFO - Processing rows 71 to 148
+2025-10-23 22:05:39,885 - INFO - Schedule saved to '/tmp/ptd_intermediate_e78nu6h3/schedule.csv'
+2025-10-23 22:05:39,885 - INFO - Total procedures: 55
+2025-10-23 22:05:39,885 - INFO - Total visits: 22
+2025-10-23 22:05:39,885 - INFO - Merging common matrix from /tmp/ptd_intermediate_e78nu6h3/extracted_forms.csv and /tmp/ptd_intermediate_e78nu6h3/schedule.csv
+2025-10-23 22:05:39,885 - INFO - Generating ordered SoA matrix from /tmp/ptd_intermediate_e78nu6h3/extracted_forms.csv and /tmp/ptd_intermediate_e78nu6h3/schedule.csv
+2025-10-23 22:05:39,899 - INFO - Unmapped forms: ['V1, V4, V5, V6, V7, V10, V12, V14, V16, V18, V19A, V21', 'V2, V8, V19', 'V2, V5, V8, V16, V19', 'V2, V4, V5, V6, V7, V8, V10, V12, V14, V16, V18, V19, V19A, V20', 'MRI Scan Consent (MRI Consent)', 'V1, V6, V8, V12, V16, V19, V19A', 'Unplanned Procedures']
+2025-10-23 22:05:39,912 - INFO - SoA matrix saved to /tmp/ptd_intermediate_e78nu6h3/soa_matrix.csv
+2025-10-23 22:05:39,912 - INFO - Grouping events from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:05:39,912 - INFO - Generating visits with groups from ../output2/protocol_extract/structuredData_output.json
+2025-10-23 22:05:39,920 - WARNING - Could not determine extension start week from JSON. Check 'Study rationale' section.
+2025-10-23 22:05:39,936 - INFO - Visits with groups saved to /tmp/ptd_intermediate_e78nu6h3/visits_with_groups.xlsx
