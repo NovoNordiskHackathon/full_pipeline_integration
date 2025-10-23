@@ -51,7 +51,7 @@ fi
 
 # -------- RUN THE PYTHON SCRIPT --------
 echo "Converting document to PDF..."
-"$PY" "$SCRIPT_DIR/doc_to_pdf.py" "$INPUT_DOC" "$OUTPUT_PDF"
+"$PY" "$SCRIPT_DIR/backend/doc_to_pdf.py" "$INPUT_DOC" "$OUTPUT_PDF"
 
 if [[ -f "$OUTPUT_PDF" ]]; then
     echo "Conversion successful: $OUTPUT_PDF"

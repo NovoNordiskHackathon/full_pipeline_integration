@@ -24,9 +24,9 @@ echo "📥 Installing dependencies..."
 pip install -r requirements.txt >/dev/null 2>&1 || true
 pip install flask>=2.3.0 flask-cors>=4.0.0 werkzeug>=2.3.0
 
-# Ensure folders
-mkdir -p uploads output
+# Ensure backend folders (uploads/output live under backend now)
+mkdir -p backend/uploads backend/output
 
 # Start Flask server
 echo "🌐 Starting Flask server on http://localhost:5000"
-python app.py
+python backend/app.py
