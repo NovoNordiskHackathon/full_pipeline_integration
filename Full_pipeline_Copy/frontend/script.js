@@ -207,7 +207,7 @@ class PTDGenerator {
       await this.callBackendAPI();
      
       // Show success
-      this.showOutputSection();
+      await this.showOutputSection();
       this.showToast('PTD generated successfully!', 'success');
      
     } catch (error) {
@@ -273,7 +273,25 @@ class PTDGenerator {
           return;
         }
       } catch (e) {
-        // ignore, will fall back to raw result
+        // ignore, will try a direct well-known file next
+      }
+
+      // Last-resort fallback: try the common root output file directly
+      // This matches the backend's /download/<filename> route with OUTPUT_FOLDER='output'
+      const backendOrigin = 'http://127.0.0.1:5000';
+      const rootDownloadPath = '/download/ptd_output.xlsx';
+      try {
+        const headResp = await fetch(`${backendOrigin}${rootDownloadPath}`, { method: 'HEAD' });
+        if (headResp.ok) {
+          this.processingResult = {
+            success: true,
+            output_file: 'ptd_output.xlsx',
+            download_url: rootDownloadPath
+          };
+          return;
+        }
+      } catch (_) {
+        // If even this fails, fall through to raw response
       }
 
       // Final fallback: keep the raw response
@@ -332,7 +350,7 @@ class PTDGenerator {
     }
   }
 
-  showOutputSection() {
+  async showOutputSection() {
     const outputSection = document.getElementById('outputSection');
     outputSection.classList.remove('hidden');
     outputSection.classList.add('fade-in');
@@ -344,8 +362,25 @@ class PTDGenerator {
     // Configure the real download link from backend response, fallback if missing
     const downloadLink = document.getElementById('downloadLink');
     const fileTitle = document.querySelector('.file-details h5');
-    const url = this.processingResult?.download_url || this.processingResult?.outputs?.download_url;
-    const fileName = this.processingResult?.output_file || (this.processingResult?.outputs?.ptd_file ? this.processingResult.outputs.ptd_file.split('/').pop() : null) || 'PTD_Output.xlsx';
+    let url = this.processingResult?.download_url || this.processingResult?.outputs?.download_url;
+    let fileName = this.processingResult?.output_file || (this.processingResult?.outputs?.ptd_file ? this.processingResult.outputs.ptd_file.split('/').pop() : null) || 'PTD_Output.xlsx';
+
+    // If backend result didn't include a URL, try fetching latest now
+    if (!url) {
+      try {
+        const latestResp = await fetch('http://127.0.0.1:5000/outputs/latest');
+        if (latestResp.ok) {
+          const latest = await latestResp.json();
+          if (latest && latest.success) {
+            url = latest.download_url;
+            fileName = latest.filename || fileName;
+            this.processingResult = latest;
+          }
+        }
+      } catch (_) {
+        // ignore and continue to next fallback
+      }
+    }
 
     if (url) {
       const backendOrigin = 'http://127.0.0.1:5000';
