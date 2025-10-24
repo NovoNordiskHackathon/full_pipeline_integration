@@ -225,9 +225,9 @@ class PTDGenerator {
     formData.append('crf_file', this.crfFile);
 
     try {
-      // First, try to upload files
+      // Upload files and trigger backend processing
 //      const uploadResponse = await fetch('http://localhost:5000/run_pipeline', {
-        const uploadResponse = await fetch('http://127.0.0.1:5000//run_pipeline', {
+        const uploadResponse = await fetch('http://127.0.0.1:5000/run_pipeline', {
         method: 'POST',
         body: formData
       });
@@ -238,11 +238,45 @@ class PTDGenerator {
         throw new Error(uploadResult.error || 'Upload failed');
       }
 
-      // For now, we'll simulate the processing since PDF conversion isn't implemented
-      // In a real implementation, you'd handle the actual file processing
-      await this.simulateProcessing();
-      
-      // Store the result for potential download
+      // If backend already returned a download URL, use it
+      const immediateUrl = uploadResult.download_url || uploadResult?.outputs?.download_url;
+      if (immediateUrl) {
+        this.processingResult = uploadResult;
+        return;
+      }
+
+      // If backend returned structured JSON, trigger PTD generation endpoint
+      const structured = uploadResult.results;
+      if (structured && structured.structured_protocol && structured.structured_ecrf) {
+        const genResponse = await fetch('http://127.0.0.1:5000/run_ptd_generation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            protocol_json: structured.structured_protocol,
+            ecrf_json: structured.structured_ecrf
+          })
+        });
+        const genResult = await genResponse.json();
+        if (!genResult.success) {
+          throw new Error(genResult.error || 'Generation failed');
+        }
+        this.processingResult = genResult;
+        return;
+      }
+
+      // Fallback: ask backend for latest output in output_dir
+      try {
+        const latestResp = await fetch('http://127.0.0.1:5000/outputs/latest');
+        const latest = await latestResp.json();
+        if (latest && latest.success) {
+          this.processingResult = latest;
+          return;
+        }
+      } catch (e) {
+        // ignore, will fall back to raw result
+      }
+
+      // Final fallback: keep the raw response
       this.processingResult = uploadResult;
       
     } catch (error) {
@@ -307,9 +341,23 @@ class PTDGenerator {
     const date = new Date();
     document.getElementById('generationDate').textContent = date.toLocaleDateString();
    
-    // Create a sample download link (in real implementation, this would be the actual file)
+    // Configure the real download link from backend response, fallback if missing
     const downloadLink = document.getElementById('downloadLink');
-    downloadLink.href = 'data:text/plain;charset=utf-8,This is a sample PTD file content';
+    const fileTitle = document.querySelector('.file-details h5');
+    const url = this.processingResult?.download_url || this.processingResult?.outputs?.download_url;
+    const fileName = this.processingResult?.output_file || (this.processingResult?.outputs?.ptd_file ? this.processingResult.outputs.ptd_file.split('/').pop() : null) || 'PTD_Output.xlsx';
+
+    if (url) {
+      const backendOrigin = 'http://127.0.0.1:5000';
+      downloadLink.href = url.startsWith('http') ? url : `${backendOrigin}${url}`;
+      downloadLink.setAttribute('download', fileName);
+      if (fileTitle) fileTitle.textContent = fileName;
+    } else {
+      // Fallback placeholder only if backend did not return a URL
+      downloadLink.href = 'data:text/plain;charset=utf-8,Generation complete but no download_url provided by backend';
+      downloadLink.setAttribute('download', fileName);
+      if (fileTitle) fileTitle.textContent = fileName;
+    }
   }
 
   formatFileSize(bytes) {
