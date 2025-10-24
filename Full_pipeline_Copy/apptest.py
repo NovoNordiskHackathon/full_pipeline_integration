@@ -118,6 +118,73 @@ def health_check():
     })
 
 
+# Helper to find latest generated file under OUTPUT_FOLDER
+def _find_latest_file(directory: str, allowed_exts: tuple = ('.xlsx', '.zip', '.json', '.csv')) -> str | None:
+    latest_path = None
+    latest_mtime = -1.0
+    try:
+        for root, _, files in os.walk(directory):
+            for name in files:
+                if allowed_exts and not name.lower().endswith(allowed_exts):
+                    continue
+                full = os.path.join(root, name)
+                try:
+                    mtime = os.path.getmtime(full)
+                except OSError:
+                    continue
+                if mtime > latest_mtime:
+                    latest_mtime = mtime
+                    latest_path = full
+    except Exception:
+        return None
+    return latest_path
+
+
+@app.route('/outputs/latest', methods=['GET'])
+def get_latest_output_global():
+    """Return the latest generated file under OUTPUT_FOLDER (global fallback)."""
+    latest = _find_latest_file(OUTPUT_FOLDER)
+    if not latest:
+        return jsonify({'success': False, 'error': 'No output files found'}), 404
+    # Compute relative path components for download route
+    rel = os.path.relpath(latest, OUTPUT_FOLDER)
+    parts = rel.split(os.sep)
+    if len(parts) >= 2:
+        job_id, filename = parts[0], parts[-1]
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'job_id': secure_filename(job_id),
+            'download_url': f'/download/{secure_filename(job_id)}/{secure_filename(filename)}'
+        })
+    # File at root of OUTPUT_FOLDER
+    filename = os.path.basename(latest)
+    return jsonify({
+        'success': True,
+        'filename': filename,
+        'download_url': f'/download/{secure_filename(filename)}'
+    })
+
+
+@app.route('/outputs/<job_id>/latest', methods=['GET'])
+def get_latest_output_for_job(job_id: str):
+    """Return the latest generated file within a specific job subfolder."""
+    safe_job = secure_filename(job_id)
+    job_dir = os.path.join(OUTPUT_FOLDER, safe_job)
+    if not os.path.isdir(job_dir):
+        return jsonify({'success': False, 'error': 'Job not found'}), 404
+    latest = _find_latest_file(job_dir)
+    if not latest:
+        return jsonify({'success': False, 'error': 'No output files found for this job'}), 404
+    filename = os.path.basename(latest)
+    return jsonify({
+        'success': True,
+        'filename': filename,
+        'job_id': safe_job,
+        'download_url': f'/download/{safe_job}/{secure_filename(filename)}'
+    })
+
+
 @app.route('/run_pipeline', methods=['POST'])
 def run_pipeline():
     """
