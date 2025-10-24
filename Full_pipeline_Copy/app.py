@@ -13,6 +13,7 @@ import os
 import sys
 import json
 import tempfile
+import uuid
 import shutil
 import logging
 from pathlib import Path
@@ -97,6 +98,86 @@ def get_status():
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'timestamp': str(Path().cwd())})
+
+
+def _find_latest_file(directory: str, allowed_exts: tuple[str, ...] = ('.xlsx', '.zip', '.json', '.csv')) -> str | None:
+    latest_path = None
+    latest_mtime = -1.0
+    try:
+        for root, _, files in os.walk(directory):
+            for name in files:
+                if allowed_exts and not name.lower().endswith(allowed_exts):
+                    continue
+                full = os.path.join(root, name)
+                try:
+                    mtime = os.path.getmtime(full)
+                except OSError:
+                    continue
+                if mtime > latest_mtime:
+                    latest_mtime = mtime
+                    latest_path = full
+    except Exception:
+        return None
+    return latest_path
+
+
+@app.route('/outputs/latest', methods=['GET'])
+def get_latest_output_global():
+    """Return the latest generated file under OUTPUT_FOLDER (global fallback)."""
+    latest = _find_latest_file(OUTPUT_FOLDER)
+    if not latest:
+        return jsonify({'success': False, 'error': 'No output files found'}), 404
+    # Compute relative path components for download route
+    rel = os.path.relpath(latest, OUTPUT_FOLDER)
+    parts = rel.split(os.sep)
+    if len(parts) >= 2:
+        job_id, filename = parts[0], parts[-1]
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'job_id': job_id,
+            'download_url': f'/download/{secure_filename(job_id)}/{secure_filename(filename)}'
+        })
+    # File at root of OUTPUT_FOLDER
+    filename = os.path.basename(latest)
+    return jsonify({
+        'success': True,
+        'filename': filename,
+        'download_url': f'/download/{secure_filename(filename)}'
+    })
+
+
+@app.route('/outputs/<job_id>/latest', methods=['GET'])
+def get_latest_output_for_job(job_id: str):
+    """Return the latest generated file within a specific job subfolder."""
+    safe_job = secure_filename(job_id)
+    job_dir = os.path.join(OUTPUT_FOLDER, safe_job)
+    if not os.path.isdir(job_dir):
+        return jsonify({'success': False, 'error': 'Job not found'}), 404
+    latest = _find_latest_file(job_dir)
+    if not latest:
+        return jsonify({'success': False, 'error': 'No output files found for this job'}), 404
+    filename = os.path.basename(latest)
+    return jsonify({
+        'success': True,
+        'filename': filename,
+        'job_id': safe_job,
+        'download_url': f'/download/{safe_job}/{secure_filename(filename)}'
+    })
+
+
+@app.route('/download/<filename>')
+def download_root_file(filename: str):
+    """Backward-compatible download for files saved directly under OUTPUT_FOLDER."""
+    try:
+        safe_name = secure_filename(filename)
+        file_path = os.path.join(OUTPUT_FOLDER, safe_name)
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True, download_name=safe_name)
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/run_pipeline', methods=['POST'])
 def run_pipeline():
@@ -239,7 +320,11 @@ def run_ptd_generation():
         with tempfile.TemporaryDirectory() as temp_dir:
             protocol_file = os.path.join(temp_dir, 'protocol_structured.json')
             ecrf_file = os.path.join(temp_dir, 'ecrf_structured.json')
-            output_file = os.path.join(temp_dir, 'ptd_output.xlsx')
+            # Unique job output for multi-user isolation
+            job_id = uuid.uuid4().hex
+            job_dir = os.path.join(OUTPUT_FOLDER, job_id)
+            os.makedirs(job_dir, exist_ok=True)
+            output_file = os.path.join(job_dir, 'ptd_output.xlsx')
             
             # Write JSON data
             with open(protocol_file, 'w', encoding='utf-8') as f:
@@ -256,8 +341,9 @@ def run_ptd_generation():
             return jsonify({
                 'success': True,
                 'message': 'PTD generation completed',
-                'output_file': 'ptd_output.xlsx',
-                'download_url': '/download/ptd_output.xlsx'
+                'output_file': os.path.basename(output_file),
+                'download_url': f'/download/{job_id}/{os.path.basename(output_file)}',
+                'job_id': job_id
             })
             
     except Exception as e:
@@ -267,13 +353,15 @@ def run_ptd_generation():
             'error': f'PTD generation failed: {str(e)}'
         }), 500
 
-@app.route('/download/<filename>')
-def download_file(filename):
-    """Download generated files"""
+@app.route('/download/<job_id>/<filename>')
+def download_file(job_id: str, filename: str):
+    """Download generated files scoped by job_id for per-user isolation."""
     try:
-        file_path = os.path.join(OUTPUT_FOLDER, filename)
+        safe_name = secure_filename(filename)
+        safe_job = secure_filename(job_id)
+        file_path = os.path.join(OUTPUT_FOLDER, safe_job, safe_name)
         if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=True)
+            return send_file(file_path, as_attachment=True, download_name=safe_name)
         else:
             return jsonify({'error': 'File not found'}), 404
     except Exception as e:

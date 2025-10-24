@@ -7,6 +7,7 @@ Integrates with existing Python pipeline scripts
 import os
 import sys
 import json
+import uuid
 import tempfile
 import shutil
 import logging
@@ -157,9 +158,10 @@ def process_uploaded_files():
                 'error': 'Both protocol and CRF files are required'
             }), 400
 
-        # Create unique session directory
+        # Create unique session directory and derive a job id for outputs
         session_id = tempfile.mkdtemp(dir=UPLOAD_FOLDER)
-        logger.info(f"Created session directory: {session_id}")
+        job_id = os.path.basename(session_id)
+        logger.info(f"Created session directory: {session_id} (job_id={job_id})")
 
         # Save uploaded files
         protocol_path = save_uploaded_file(protocol_file, session_id)
@@ -254,7 +256,7 @@ def process_uploaded_files():
         return process_json_data({
             'protocol_json': protocol_json,
             'ecrf_json': crf_json
-        })
+        }, job_id=job_id)
 
     except Exception as e:
         logger.error(f"File processing error: {str(e)}")
@@ -385,7 +387,7 @@ def process_uploaded_files():
 #             'error': f'JSON processing failed: {str(e)}'
 #         }), 500
 
-def process_json_data(data):
+def process_json_data(data, job_id: str | None = None):
     """Process pre-extracted JSON data through the pipeline"""
     try:
         protocol_json = data.get('protocol_json')
@@ -444,7 +446,12 @@ def process_json_data(data):
 
             # Generate PTD using template mode
             logger.info("Generating PTD...")
-            ptd_output_file = os.path.join(OUTPUT_FOLDER, 'ptd_output.xlsx')
+            # Ensure a unique job id and output subdirectory for multi-user isolation
+            if not job_id:
+                job_id = uuid.uuid4().hex
+            output_dir = os.path.join(OUTPUT_FOLDER, job_id)
+            os.makedirs(output_dir, exist_ok=True)
+            ptd_output_file = os.path.join(output_dir, 'ptd_output.xlsx')
 
             # Define template file path - adjust this to your actual template location
             # Option 1: Template in backend folder
@@ -499,7 +506,8 @@ def process_json_data(data):
                     'ecrf_processed': ecrf_output_abs,
                     'ptd_file': ptd_output_abs,
                     'template_used': template_abs,
-                    'download_url': f'/download/{os.path.basename(ptd_output_abs)}'
+                    'download_url': f'/download/{job_id}/{os.path.basename(ptd_output_abs)}',
+                    'job_id': job_id
                 }
             })
 
@@ -538,7 +546,11 @@ def run_ptd_generation():
         with tempfile.TemporaryDirectory() as temp_dir:
             protocol_file = os.path.join(temp_dir, 'protocol_structured.json')
             ecrf_file = os.path.join(temp_dir, 'ecrf_structured.json')
-            output_file = os.path.join(OUTPUT_FOLDER, 'ptd_output.xlsx')
+            # Unique job output
+            job_id = uuid.uuid4().hex
+            output_dir = os.path.join(OUTPUT_FOLDER, job_id)
+            os.makedirs(output_dir, exist_ok=True)
+            output_file = os.path.join(output_dir, 'ptd_output.xlsx')
 
             # Write JSON data
             with open(protocol_file, 'w', encoding='utf-8') as f:
@@ -554,8 +566,9 @@ def run_ptd_generation():
             return jsonify({
                 'success': True,
                 'message': 'PTD generation completed',
-                'output_file': 'ptd_output.xlsx',
-                'download_url': '/download/ptd_output.xlsx',
+                'output_file': os.path.basename(output_file),
+                'download_url': f'/download/{job_id}/{os.path.basename(output_file)}',
+                'job_id': job_id,
                 'result': result
             })
 
@@ -582,28 +595,31 @@ def run_ptd_generation():
 #         return jsonify({'error': str(e)}), 500
 from flask import Response
 
+# Backward-compatible static route (will serve the last static file if present)
 @app.route('/download/ptd_output.xlsx')
-def download_file():
-    """Download generated PTD output file"""
+def download_static_ptd():
     try:
-        file_path = 'output/ptd_output.xlsx'
-
-        logger.info(f"Download requested for PTD output file")
-        logger.info(f"Serving file from: {file_path}")
-        logger.info(f"File exists: {os.path.exists(file_path)}")
-
+        file_path = os.path.join(OUTPUT_FOLDER, 'ptd_output.xlsx')
+        logger.info("Download requested for legacy static PTD output file")
         if os.path.exists(file_path):
-            response = send_file(
-                file_path,
-                as_attachment=True,
-                download_name='PTD_Output.xlsx'  # Explicit client filename
-            )
-            response.headers['Content-Disposition'] = 'attachment; filename=PTD_Output.xlsx'
-            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-            return response
-        else:
-            logger.error(f"File not found: {file_path}")
-            return jsonify({'error': f'File not found: {file_path}'}), 404
+            return send_file(file_path, as_attachment=True, download_name='PTD_Output.xlsx')
+        return jsonify({'error': f'File not found: {file_path}'}), 404
+    except Exception as e:
+        logger.error(f"Download error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/download/<job_id>/<filename>')
+def download_job_file(job_id: str, filename: str):
+    """Download a generated file scoped by job_id to avoid user collisions."""
+    try:
+        safe_name = secure_filename(filename)
+        file_path = os.path.join(OUTPUT_FOLDER, secure_filename(job_id), safe_name)
+        logger.info(f"Download requested: job_id={job_id}, file={safe_name}")
+        if os.path.exists(file_path):
+            # Use the original filename for the client download name
+            return send_file(file_path, as_attachment=True, download_name=safe_name)
+        return jsonify({'error': 'File not found'}), 404
     except Exception as e:
         logger.error(f"Download error: {str(e)}")
         return jsonify({'error': str(e)}), 500
