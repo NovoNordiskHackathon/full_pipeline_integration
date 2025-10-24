@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTD Generator - Presentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .slide {
+            background: white;
+            margin: 20px auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 900px;
+            page-break-after: always;
+        }
+        .slide h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .slide h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .slide h3 {
+            color: #7f8c8d;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .speaker-notes {
+            background: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .architecture-diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 20px 0;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .command {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title Slide -->
+    <div class="slide">
+        <h1>PTD Generator</h1>
+        <h2>Automated Protocol Translation Document Generation</h2>
+        <p style="font-size: 1.2em; color: #7f8c8d; text-align: center; margin-top: 40px;">
+            Transform Protocol and CRF documents into structured PTD files using AI-powered processing
+        </p>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> Welcome to the PTD Generator presentation. This system automates the creation of Protocol Translation Documents from clinical trial documents. It combines AI-powered text extraction with structured data processing to streamline the clinical research workflow.
+        </div>
+    </div>
+
+    <!-- Slide 2: Project Overview -->
+    <div class="slide">
+        <h1>What is PTD Generator?</h1>
+        <ul>
+            <li><strong>Purpose:</strong> Transform Protocol PDFs and eCRF documents into structured PTD files</li>
+            <li><strong>Technology:</strong> AI-powered text extraction + hierarchical document structuring</li>
+            <li><strong>Output:</strong> Standardized Excel files with Schedule Grid and Study Specific Forms</li>
+            <li><strong>Target Users:</strong> Clinical research teams, data managers, protocol developers</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> PTD Generator solves the manual, time-consuming process of creating Protocol Translation Documents. It uses advanced AI to extract and structure data from complex clinical documents, producing standardized outputs that integrate with existing clinical data management systems. This significantly reduces manual effort and improves consistency across clinical trials.
+        </div>
+    </div>
+
+    <!-- Slide 3: High-Level Architecture -->
+    <div class="slide">
+        <h1>System Architecture</h1>
+        <div class="architecture-diagram">
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Flask API     │    │   PTD Pipeline  │
+│   (HTML/JS)     │◄──►│   (app.py)      │◄──►│   (PTD_Gen/)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       ▼
+         │                       │              ┌─────────────────┐
+         │                       │              │   Modules       │
+         │                       │              │   - form_extractor
+         │                       │              │   - soa_parser
+         │                       │              │   - common_matrix
+         │                       │              │   - event_grouping
+         │                       │              │   - schedule_layout
+         │                       │              └─────────────────┘
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The system uses a three-layer architecture: Frontend, API, and Processing Pipeline. The Flask API serves as the communication layer between the web interface and processing modules. This modular design allows for easy maintenance and feature additions, while keeping the system scalable and maintainable.
+        </div>
+    </div>
+
+    <!-- Slide 4: Repository Layout -->
+    <div class="slide">
+        <h1>Project Structure</h1>
+        <div class="architecture-diagram">
+Full_pipeline/
+├── app.py                          # Main Flask application
+├── frontend/                       # Web interface
+│   ├── index.html                  # Main HTML page
+│   ├── script.js                   # Frontend JavaScript
+│   └── styles.css                  # CSS styling
+├── PTD_Gen/                        # Core PTD generation
+│   ├── generate_ptd.py             # Main orchestrator
+│   ├── modules/                    # Processing modules
+│   └── config/                     # Configuration files
+└── docs/                           # Documentation
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The project has a clean, organized structure with clear separation of concerns. The frontend handles user interaction, PTD_Gen contains core processing logic, and comprehensive documentation ensures maintainability. This structure makes it easy for new developers to understand and contribute to the project.
+        </div>
+    </div>
+
+    <!-- Slide 5: Key Modules - Form Extraction -->
+    <div class="slide">
+        <h1>Form Extraction Module</h1>
+        <h2>Responsibilities:</h2>
+        <ul>
+            <li>Extract form information from eCRF JSON files</li>
+            <li>Classify form sources (Library, New, Reference Study)</li>
+            <li>Identify dynamic triggers and required status</li>
+            <li>Generate structured CSV output</li>
+        </ul>
+        <h2>Configuration & I/O:</h2>
+        <ul>
+            <li><strong>Configuration:</strong> <code>config_form_extractor.json</code></li>
+            <li><strong>Input:</strong> eCRF JSON file</li>
+            <li><strong>Output:</strong> Forms CSV with metadata</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The form extraction module uses pattern matching and AI to intelligently extract form information from complex eCRF documents. It automatically classifies forms based on naming conventions and context, handling complex eCRF structures with nested hierarchies. This ensures accurate and consistent form identification across different document formats.
+        </div>
+    </div>
+
+    <!-- Slide 6: Key Modules - Schedule Parsing -->
+    <div class="slide">
+        <h1>Schedule of Activities Parser</h1>
+        <h2>Responsibilities:</h2>
+        <ul>
+            <li>Parse schedule tables from protocol documents</li>
+            <li>Extract visit patterns and procedures</li>
+            <li>Create visit-procedure mapping matrix</li>
+            <li>Handle complex table structures</li>
+        </ul>
+        <h2>Configuration & I/O:</h2>
+        <ul>
+            <li><strong>Configuration:</strong> <code>config_soa_parser.json</code></li>
+            <li><strong>Input:</strong> Protocol JSON file</li>
+            <li><strong>Output:</strong> Schedule CSV matrix</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The schedule parser intelligently identifies schedule tables in protocol documents and handles various visit naming conventions like V1, P1, S1D1, etc. It provides robust parsing that works with different document formats, ensuring accurate extraction of visit-procedure relationships from complex protocol documents.
+        </div>
+    </div>
+
+    <!-- Slide 7: Key Modules - PTD Generation -->
+    <div class="slide">
+        <h1>PTD Generation Orchestrator</h1>
+        <h2>Responsibilities:</h2>
+        <ul>
+            <li>Coordinate 5-stage processing pipeline</li>
+            <li>Merge data from multiple sources</li>
+            <li>Generate Excel output with two sheets</li>
+            <li>Support multiple output modes (stream, surgery, fast)</li>
+        </ul>
+        <h2>Features:</h2>
+        <ul>
+            <li>Template-based generation</li>
+            <li>Memory-efficient processing</li>
+            <li>Multiple output formats</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The PTD generation orchestrator is the central component that coordinates all processing modules. It supports different processing modes for various use cases and generates professional Excel outputs with proper formatting. The template-based approach ensures consistency while allowing for customization.
+        </div>
+    </div>
+
+    <!-- Slide 8: API Endpoints -->
+    <div class="slide">
+        <h1>RESTful API Interface</h1>
+        <h2>Key Endpoints:</h2>
+        <ul>
+            <li><code>GET /status</code> - System status and health</li>
+            <li><code>POST /run_pipeline</code> - Main processing endpoint</li>
+            <li><code>POST /run_ptd_generation</code> - Full PTD generation</li>
+            <li><code>GET /download/&lt;filename&gt;</code> - File download</li>
+        </ul>
+        <h2>Example cURL:</h2>
+        <div class="command">
+curl -X POST http://localhost:5000/run_pipeline \
+  -F "protocol_file=@protocol.pdf" \
+  -F "crf_file=@crf.pdf"
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The system provides a RESTful API design for easy integration with existing systems. It supports both file upload and JSON data input, with comprehensive error handling and status reporting. This makes it easy to integrate with other clinical research tools and workflows.
+        </div>
+    </div>
+
+    <!-- Slide 9: Setup & Run -->
+    <div class="slide">
+        <h1>Quick Setup and Running</h1>
+        <h2>Setup Commands:</h2>
+        <div class="command">
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run application
+python app.py
+        </div>
+        <h2>Access Points:</h2>
+        <ul>
+            <li><strong>Frontend:</strong> http://localhost:5000</li>
+            <li><strong>API:</strong> http://localhost:5000/status</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The setup process is simple with minimal dependencies. The application runs on standard port 5000 and is easy to deploy and maintain. This makes it accessible to both technical and non-technical users in clinical research teams.
+        </div>
+    </div>
+
+    <!-- Slide 10: Troubleshooting -->
+    <div class="slide">
+        <h1>Common Issues and Solutions</h1>
+        <h2>Top 5 Fixes:</h2>
+        <ol>
+            <li><strong>ModuleNotFoundError:</strong> Add current directory to PYTHONPATH</li>
+            <li><strong>Port Already in Use:</strong> Kill existing process or use different port</li>
+            <li><strong>Missing Dependencies:</strong> Reinstall requirements.txt</li>
+            <li><strong>File Not Found:</strong> Check file paths and permissions</li>
+            <li><strong>JSON Decode Error:</strong> Validate input JSON files</li>
+        </ol>
+        <h2>Debug Commands:</h2>
+        <div class="command">
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+lsof -i :5000
+python -m json.tool input.json
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> Common issues are well-documented with specific solutions. Debug commands help identify and resolve problems quickly, and comprehensive logging provides detailed information for troubleshooting. This ensures users can resolve issues independently and maintain system uptime.
+        </div>
+    </div>
+
+    <!-- Slide 11: Demo Flow -->
+    <div class="slide">
+        <h1>Live Demo - PTD Generation</h1>
+        <h2>Demo Steps:</h2>
+        <ol>
+            <li><strong>Start Application:</strong> <code>python app.py</code></li>
+            <li><strong>Access Frontend:</strong> Open http://localhost:5000</li>
+            <li><strong>Upload Files:</strong> Drag and drop Protocol and CRF documents</li>
+            <li><strong>Process Documents:</strong> Click "Generate PTD" button</li>
+            <li><strong>Monitor Progress:</strong> Watch processing steps</li>
+            <li><strong>Download Result:</strong> Get generated PTD Excel file</li>
+        </ol>
+        <h2>Expected Output:</h2>
+        <ul>
+            <li>Schedule Grid sheet with visit-procedure matrix</li>
+            <li>Study Specific Forms sheet with form details</li>
+            <li>Professional formatting and styling</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> This live demonstration shows the complete workflow from document upload to PTD generation. The user-friendly interface and processing capabilities are demonstrated, along with real-world usage scenarios. The expected output shows the professional quality of generated documents.
+        </div>
+    </div>
+
+    <!-- Slide 12: Next Steps -->
+    <div class="slide">
+        <h1>Future Enhancements</h1>
+        <h2>Immediate Improvements:</h2>
+        <ul>
+            <li>Complete integration testing</li>
+            <li>Enhanced error handling</li>
+            <li>Input validation</li>
+        </ul>
+        <h2>Short-term Goals:</h2>
+        <ul>
+            <li>Docker containerization</li>
+            <li>CI/CD pipeline</li>
+            <li>API documentation with Swagger</li>
+        </ul>
+        <h2>Long-term Vision:</h2>
+        <ul>
+            <li>Microservices architecture</li>
+            <li>Cloud deployment</li>
+            <li>Machine learning enhancements</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> The roadmap includes clear priorities for future development, focusing on scalability and maintainability. The community-driven development approach ensures continuous improvement and adaptation to user needs. This provides a clear vision for the project's evolution.
+        </div>
+    </div>
+
+    <!-- Slide 13: References and Resources -->
+    <div class="slide">
+        <h1>Documentation and Support</h1>
+        <h2>Documentation:</h2>
+        <ul>
+            <li><code>docs/README_FULL.md</code> - Comprehensive documentation</li>
+            <li><code>docs/ARCHITECTURE.md</code> - System architecture</li>
+            <li><code>docs/API_REFERENCE.md</code> - API documentation</li>
+            <li><code>docs/QUICK_START.md</code> - Quick start guide</li>
+        </ul>
+        <h2>Support:</h2>
+        <ul>
+            <li>GitHub repository with issue tracking</li>
+            <li>Comprehensive troubleshooting guide</li>
+            <li>Example configurations and templates</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> Extensive documentation is available for both users and developers, with multiple support channels for assistance. Regular updates and community contributions ensure the project remains current and responsive to user needs. This comprehensive support system enables successful adoption and maintenance.
+        </div>
+    </div>
+
+    <!-- Slide 14: Questions & Discussion -->
+    <div class="slide">
+        <h1>Questions and Discussion</h1>
+        <h2>Contact Information:</h2>
+        <ul>
+            <li><strong>Repository:</strong> [GitHub Link]</li>
+            <li><strong>Documentation:</strong> <code>docs/</code> directory</li>
+            <li><strong>Issues:</strong> GitHub Issues tracker</li>
+        </ul>
+        <h2>Discussion Topics:</h2>
+        <ul>
+            <li>Integration requirements</li>
+            <li>Customization needs</li>
+            <li>Performance considerations</li>
+            <li>Deployment strategies</li>
+        </ul>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> This is an open floor for questions and discussion. We can address specific use cases and requirements, gather feedback for future improvements, and discuss integration strategies. The goal is to ensure the system meets the needs of clinical research teams and can be successfully deployed in various environments.
+        </div>
+    </div>
+
+    <script>
+        // Simple presentation navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                // Next slide logic could be added here
+                console.log('Next slide');
+            } else if (e.key === 'ArrowLeft') {
+                // Previous slide logic could be added here
+                console.log('Previous slide');
+            }
+        });
+    </script>
+</body>
+</html>
