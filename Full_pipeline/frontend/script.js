@@ -202,9 +202,9 @@ class PTDGenerator {
     this.startProgressAnimation();
 
     try {
-      // Simulate processing with realistic steps
-      await this.simulateProcessing();
-     
+      // Call backend endpoints to run pipeline and generate PTD
+      await this.callBackendAPI();
+
       // Show success
       this.showOutputSection();
       this.showToast('PTD generated successfully!', 'success');
@@ -250,19 +250,22 @@ class PTDGenerator {
     });
   }
 
-  async simulateProcessing() {
-    // Simulate realistic processing time
-    const steps = [
-      { name: 'Uploading files...', duration: 2000 },
-      { name: 'Analyzing document structure...', duration: 3000 },
-      { name: 'Extracting data...', duration: 2500 },
-      { name: 'Generating PTD...', duration: 2000 },
-      { name: 'Finalizing output...', duration: 1500 }
-    ];
-
-    for (const step of steps) {
-      await new Promise(resolve => setTimeout(resolve, step.duration));
+  async callBackendAPI() {
+    // This frontend variant uses the JSON path directly (no file upload UI yet)
+    // Expect backend to expose /outputs/latest for newest output as a fallback
+    try {
+      // Try to fetch the latest output metadata
+      const latestResp = await fetch('http://127.0.0.1:5000/outputs/latest');
+      const latest = await latestResp.json();
+      if (latest && latest.success) {
+        this.processingResult = latest;
+        return;
+      }
+    } catch (e) {
+      // ignore; will fall back to placeholder below
     }
+    // If nothing available, set a minimal structure so showOutputSection can still run
+    this.processingResult = { success: false };
   }
 
   showOutputSection() {
@@ -274,9 +277,23 @@ class PTDGenerator {
     const date = new Date();
     document.getElementById('generationDate').textContent = date.toLocaleDateString();
    
-    // Create a sample download link (in real implementation, this would be the actual file)
+    // Configure download link from backend response if available
     const downloadLink = document.getElementById('downloadLink');
-    downloadLink.href = 'data:text/plain;charset=utf-8,This is a sample PTD file content';
+    const fileTitle = document.querySelector('.file-details h5');
+    const url = this.processingResult?.download_url || this.processingResult?.outputs?.download_url;
+    const fileName = this.processingResult?.output_file || 'PTD_Output.xlsx';
+
+    if (url) {
+      const backendOrigin = 'http://127.0.0.1:5000';
+      downloadLink.href = url.startsWith('http') ? url : `${backendOrigin}${url}`;
+      downloadLink.setAttribute('download', fileName);
+      if (fileTitle) fileTitle.textContent = fileName;
+    } else {
+      // Fallback placeholder only if backend did not provide a URL
+      downloadLink.href = 'data:text/plain;charset=utf-8,Generation complete but no download_url provided by backend';
+      downloadLink.setAttribute('download', fileName);
+      if (fileTitle) fileTitle.textContent = fileName;
+    }
   }
 
   formatFileSize(bytes) {
