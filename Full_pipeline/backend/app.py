@@ -78,6 +78,7 @@ def home():
                 "/run_pipeline",
                 "/run_ptd_generation",
                 "/download/<filename>",
+                "/outputs/latest",
             ],
         }
     )
@@ -309,6 +310,37 @@ def download_file(filename: str):
         return jsonify({"error": "File not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/outputs/latest", methods=["GET"]) 
+def get_latest_output():
+    """Return metadata and download URL for the latest .xlsx in OUTPUT_FOLDER."""
+    try:
+        if not os.path.isdir(OUTPUT_FOLDER):
+            return jsonify({"success": False, "error": "Output folder not found"}), 404
+
+        # Find .xlsx files and pick the most recently modified one
+        xlsx_files = [
+            f for f in os.listdir(OUTPUT_FOLDER)
+            if os.path.isfile(os.path.join(OUTPUT_FOLDER, f)) and f.lower().endswith(".xlsx")
+        ]
+        if not xlsx_files:
+            return jsonify({"success": False, "error": "No output files available"}), 404
+
+        latest_file = max(
+            xlsx_files,
+            key=lambda f: os.path.getmtime(os.path.join(OUTPUT_FOLDER, f)),
+        )
+        return jsonify(
+            {
+                "success": True,
+                "output_file": latest_file,
+                "download_url": f"/download/{latest_file}",
+            }
+        )
+    except Exception as e:
+        logger.error("Failed to get latest output: %s", e)
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.errorhandler(404)
