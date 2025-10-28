@@ -10,17 +10,34 @@ This folder contains the frontend and a backend located under `backend/`.
   - `doc_to_pdf.py`, `simpletext_extract.py`: conversion/extraction utilities
   - `PTD_Gen/`: PTD generation CLI and modules
 
-## Quick start (API)
+## Quick start
+
+### Backend (Flask API)
 1. Python 3.10+
 2. From `Full_pipeline/`:
    ```bash
    ./start_backend.sh
    ```
+   Or run manually:
+   ```bash
+   cd backend
+   python app.py
+   ```
 3. API runs at `http://localhost:5000`
+
+### Frontend (Static UI)
+1. Open the UI directly:
+   - Open `frontend/index.html` in your browser, or
+2. Serve via a local web server (optional):
+   ```bash
+   cd frontend
+   python -m http.server 8080
+   # then open http://localhost:8080
+   ```
 
 ### Endpoints
 - `GET /status` – server status
-- `POST /run_pipeline` – structure provided JSONs (body: `{protocol_json, ecrf_json}`)
+- `POST /run_pipeline` – accepts file upload (`protocol_file`, `crf_file`) OR JSON body `{ protocol_json, ecrf_json }`
 - `POST /run_ptd_generation` – generate PTD from structured JSONs
 - `GET /download/<filename>` – download generated file
 
@@ -54,6 +71,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Includes: `Flask`, `flask-cors`, `werkzeug`, `pandas`, `openpyxl`, `xlsxwriter`, `pdfservices-sdk` (optional).
 
 If you need PDF Services:
 ```bash
